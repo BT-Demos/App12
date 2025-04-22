@@ -1,0 +1,81 @@
+apiVersion: automation.cloudbees.io/v1alpha1
+kind: workflow
+name: Application Release with manifest
+on:
+  workflow_dispatch:
+    inputs:
+      manifest:
+        type: string
+        required: true
+jobs:
+  pre-prod:
+    environment: pre-prod
+    steps:
+      - name: Deploy App12-Frontend to Preprod
+        kind: deploy
+        if: ${{ fromJSON(inputs.manifest)['App12-Frontend']['App12-Frontend'].deploy }}
+        uses: cloudbees-io/register-deployed-artifact@v1
+        with:
+          version: ${{ fromJSON(inputs.manifest)['App12-Frontend']['App12-Frontend'].version }}
+          url: ${{ fromJSON(inputs.manifest)['App12-Frontend']['App12-Frontend'].url }}
+          digest: ${{ fromJSON(inputs.manifest)['App12-Frontend']['App12-Frontend'].digest }}
+          target-environment: pre-prod
+          name: App12-Frontend
+
+      - name: Deploy App12-Backend to Preprod
+        kind: deploy
+        if: ${{ fromJSON(inputs.manifest)['App12-Backend']['App12-Backend'].deploy }}
+        uses: cloudbees-io/register-deployed-artifact@v1
+        with:
+          version: ${{ fromJSON(inputs.manifest)['App12-Backend']['App12-Backend'].version }}
+          url: ${{ fromJSON(inputs.manifest)['App12-Backend']['App12-Backend'].url }}
+          digest: ${{ fromJSON(inputs.manifest)['App12-Backend']['App12-Backend'].digest }}
+          target-environment: pre-prod
+          name: App12-Backend
+
+      - name: Deploy App12-APIs to Preprod
+        kind: deploy
+        if: ${{ fromJSON(inputs.manifest)['App12-APIs']['App12-APIs'].deploy }}
+        uses: cloudbees-io/register-deployed-artifact@v1
+        with:
+          version: ${{ fromJSON(inputs.manifest)['App12-APIs']['App12-APIs'].version }}
+          url: ${{ fromJSON(inputs.manifest)['App12-APIs']['App12-APIs'].url }}
+          digest: ${{ fromJSON(inputs.manifest)['App12-APIs']['App12-APIs'].digest }}
+          target-environment: pre-prod
+          name: App12-APIs
+  prod:
+    needs: pre-prod
+    environment: prod
+    steps:
+      - name: Deploy App12-Frontend to Prod
+        kind: deploy
+        if: ${{ fromJSON(inputs.manifest)['App12-Frontend']['App12-Frontend'].deploy }}
+        uses: cloudbees-io/register-deployed-artifact@v1
+        with:
+          version: ${{ fromJSON(inputs.manifest)['App12-Frontend']['App12-Frontend'].version }}
+          url: ${{ fromJSON(inputs.manifest)['App12-Frontend']['App12-Frontend'].url }}
+          digest: ${{ fromJSON(inputs.manifest)['App12-Frontend']['App12-Frontend'].digest }}
+          target-environment: prod
+          name: App12-Frontend
+
+      - name: Deploy App12-Backend to Prod
+        kind: deploy
+        if: ${{ fromJSON(inputs.manifest)['App12-Backend']['App12-Backend'].deploy }}
+        uses: cloudbees-io/register-deployed-artifact@v1
+        with:
+          version: ${{ fromJSON(inputs.manifest)['App12-Backend']['App12-Backend'].version }}
+          url: ${{ fromJSON(inputs.manifest)['App12-Backend']['App12-Backend'].url }}
+          digest: ${{ fromJSON(inputs.manifest)['App12-Backend']['App12-Backend'].digest }}
+          target-environment: prod
+          name: App12-Backend
+
+      - name: Deploy App12-APIs to Prod
+        kind: deploy
+        if: ${{ fromJSON(inputs.manifest)['App12-APIs']['App12-APIs'].deploy }}
+        uses: cloudbees-io/register-deployed-artifact@v1
+        with:
+          version: ${{ fromJSON(inputs.manifest)['App12-APIs']['App12-APIs'].version }}
+          url: ${{ fromJSON(inputs.manifest)['App12-APIs']['App12-APIs'].url }}
+          digest: ${{ fromJSON(inputs.manifest)['App12-APIs']['App12-APIs'].digest }}
+          target-environment: prod
+          name: App12-APIs
